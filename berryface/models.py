@@ -42,10 +42,29 @@ class SensorType(models.Model):
     def __str__(self):
         return self.name
 
+class SensorManager(models.Manager):
+    def add_sensor(self, sensors):
+        # CHECK IF THE SENSOR EXISTS
+        for sensor in sensors:
+            given_name_exists = self.filter(given_name=sensor['given_name']).exists()
+            # IF THE GIVEN NAME DOES NOT EXIST
+            if not given_name_exists:               
+                # FIND THE SENSOR TYPE ID FROM THE SENSORTYPE TABLE
+                sensor_id =  SensorType.objects.filter(name=sensor["sensor_type_name"])
+                # IF THE SENSOR EXISTS
+                if sensor_id.exists():
+                # CREATE A NEW SENSOR
+                    s = sensor_id[0].sensor_set.create(given_name=sensor["given_name"], location=sensor["location"])        
+
 class Sensor(models.Model):
     given_name = models.CharField(max_length=200)
     location = models.CharField(max_length=200)
     sensor_type_id = models.ForeignKey(SensorType, on_delete=models.CASCADE)
+
+    objects = SensorManager()
+
+    def __str__(self):
+        return self.given_name
 
 class Entry(models.Model):
     given_name = models.CharField(max_length=200)
