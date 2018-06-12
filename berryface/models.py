@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 # Create your models here.
 class MeasureType(models.Model):
@@ -66,13 +67,31 @@ class Sensor(models.Model):
     def __str__(self):
         return self.given_name
 
-class Entry(models.Model):
-    given_name = models.CharField(max_length=200)
-    location = models.CharField(max_length=200)
-    sensor_type_id = models.ForeignKey(SensorType, on_delete=models.CASCADE)
+class EntryManager(models.Manager):
+    def add_entry(self, sensors):
+        for sensor in sensors:
+            # DETERMINE THE SENSOR_TYPE_ID AND MEASURE_TYPE_ID
+            sensor_type = SensorType.objects.filter(name=sensor["sensor_type_name"])
+            for types in sensor['types']:
+                measure_type = MeasureType.objects.filter(measurement=types["measure"])
+                if sensor_type.exists() and measure_type.exists():
+                    # FOR EACH ENTRY, ADD THE VALUE
+                    for entry in types['entries']:
+                        obj, e = Entry.objects.get_or_create(date=datetime.strptime(entry['created_at'],"%Y-%m-%d_%H:%M:%S"), defaults={
+                            'value': entry['value'],
+                            'sensor_type_id': sensor_type[0],
+                            'measure_type_id': measure_type[0]
+                        },)
 
 class Entry(models.Model):
     value = models.FloatField()
     date = models.DateTimeField()
     sensor_type_id = models.ForeignKey(SensorType, on_delete=models.CASCADE)
     measure_type_id = models.ForeignKey(MeasureType, on_delete=models.CASCADE)
+
+    objects = EntryManager()
+
+    def __str__(self):
+        return str(self.value)
+
+

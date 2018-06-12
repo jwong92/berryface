@@ -16,6 +16,8 @@ def view_json(request):
 def clear_db(request):
     SensorType.objects.all().delete()
     MeasureType.objects.all().delete()
+    Sensor.objects.all().delete()
+    Entry.objects.all().delete()
     return HttpResponse("Cleared")
 
 def insert_types(request):
@@ -29,3 +31,9 @@ def add_sensor(request):
     json_obj = response.json()
     Sensor.objects.add_sensor(json_obj)
     return HttpResponse("All inserted")
+
+def add_entry(request):
+    response = requests.get('http://99.225.25.240:8000/webapp/')
+    json_obj = response.json()
+    Entry.objects.add_entry(json_obj)
+    return HttpResponse("Entries Added")
