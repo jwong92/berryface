@@ -91,4 +91,7 @@ class Entry(models.Model):
 
     objects = EntryManager()
 
+    def __str__(self):
+        return str(self.value)
+
 
