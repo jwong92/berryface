@@ -48,7 +48,7 @@ class SensorType(models.Model):
         types = self.measurements.all()
         for item in types:
             entries = []
-            entries_objects = Entry.objects.filter(sensor_type_id_id=sensor.id).filter(sensor_type_id_id = item.id)
+            entries_objects = Entry.objects.all().filter(measure_type_id_id=item.id).filter(sensor_type_id_id=sensor.sensor_type_id.id)
             for entry in entries_objects:
                 entries.append(entry.get_json())
             types_json.append({"measure": item.measurement,
@@ -84,7 +84,6 @@ class Sensor(models.Model):
     location = models.CharField(max_length=200)
     sensor_type_id = models.ForeignKey(SensorType, on_delete=models.CASCADE)
 
-<<<<<<< HEAD
     def get_json_with_relations(self, filter_date):
         return {
             "sensor_type_name": self.sensor_type_id.name,
@@ -92,14 +91,6 @@ class Sensor(models.Model):
             "location": self.location,
             "types": self.sensor_type_id.get_json_entries(self)
         }
-
-
-class Entry(models.Model):
-    given_name = models.CharField(max_length=200)
-    location = models.CharField(max_length=200)
-    sensor_type_id = models.ForeignKey(SensorType, on_delete=models.CASCADE)
-=======
-    objects = SensorManager()
 
     def __str__(self):
         return self.given_name
@@ -119,7 +110,6 @@ class EntryManager(models.Manager):
                             'sensor_type_id': sensor_type[0],
                             'measure_type_id': measure_type[0]
                         },)
->>>>>>> eeeb6e625f9577fb6caaed76f6c0d48e055a680d
 
 class Entry(models.Model):
     value = models.FloatField()
@@ -129,7 +119,11 @@ class Entry(models.Model):
 
     objects = EntryManager()
 
+    def get_json(self):
+        return {
+            'created_at': self.date.strftime("%Y-%m-%d_%H:%M:%S"),
+            'value': self.value
+        }
+
     def __str__(self):
         return str(self.value)
-
-
