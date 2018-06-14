@@ -11,7 +11,7 @@ def index(request):
 
 def view_json(request):
     response = requests.get('http://99.225.25.240:8000/webapp/')
-    return HttpResponse(response)
+    return HttpResponse(response, content_type="application/json")
 
 def clear_db(request):
     SensorType.objects.all().delete()
@@ -24,7 +24,7 @@ def insert_types(request):
     response = requests.get('http://99.225.25.240:8000/webapp/')
     json_obj = response.json()
     result = SensorType.objects.insert_sensor(json_obj)
-    return HttpResponse(result)
+    return HttpResponse(result, content_type="application/json")
 
 
 def get_json(request):
