@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 # Create your models here.
 class MeasureType(models.Model):
@@ -64,6 +65,18 @@ class SensorManager(models.Manager):
             json_all.append(item.get_json_with_relations(filter_date))
         return json_all
 
+    def add_sensor(self, sensors):
+        # CHECK IF THE SENSOR EXISTS
+        for sensor in sensors:
+            given_name_exists = self.filter(given_name=sensor['given_name']).exists()
+            # IF THE GIVEN NAME DOES NOT EXIST
+            if not given_name_exists:               
+                # FIND THE SENSOR TYPE ID FROM THE SENSORTYPE TABLE
+                sensor_id =  SensorType.objects.filter(name=sensor["sensor_type_name"])
+                # IF THE SENSOR EXISTS
+                if sensor_id.exists():
+                # CREATE A NEW SENSOR
+                    s = sensor_id[0].sensor_set.create(given_name=sensor["given_name"], location=sensor["location"])
 
 class Sensor(models.Model):
     objects = SensorManager()
@@ -71,6 +84,7 @@ class Sensor(models.Model):
     location = models.CharField(max_length=200)
     sensor_type_id = models.ForeignKey(SensorType, on_delete=models.CASCADE)
 
+<<<<<<< HEAD
     def get_json_with_relations(self, filter_date):
         return {
             "sensor_type_name": self.sensor_type_id.name,
@@ -84,9 +98,38 @@ class Entry(models.Model):
     given_name = models.CharField(max_length=200)
     location = models.CharField(max_length=200)
     sensor_type_id = models.ForeignKey(SensorType, on_delete=models.CASCADE)
+=======
+    objects = SensorManager()
+
+    def __str__(self):
+        return self.given_name
+
+class EntryManager(models.Manager):
+    def add_entry(self, sensors):
+        for sensor in sensors:
+            # DETERMINE THE SENSOR_TYPE_ID AND MEASURE_TYPE_ID
+            sensor_type = SensorType.objects.filter(name=sensor["sensor_type_name"])
+            for types in sensor['types']:
+                measure_type = MeasureType.objects.filter(measurement=types["measure"])
+                if sensor_type.exists() and measure_type.exists():
+                    # FOR EACH ENTRY, ADD THE VALUE
+                    for entry in types['entries']:
+                        obj, e = Entry.objects.get_or_create(date=datetime.strptime(entry['created_at'],"%Y-%m-%d_%H:%M:%S"), defaults={
+                            'value': entry['value'],
+                            'sensor_type_id': sensor_type[0],
+                            'measure_type_id': measure_type[0]
+                        },)
+>>>>>>> eeeb6e625f9577fb6caaed76f6c0d48e055a680d
 
 class Entry(models.Model):
     value = models.FloatField()
     date = models.DateTimeField()
     sensor_type_id = models.ForeignKey(SensorType, on_delete=models.CASCADE)
     measure_type_id = models.ForeignKey(MeasureType, on_delete=models.CASCADE)
+
+    objects = EntryManager()
+
+    def __str__(self):
+        return str(self.value)
+
+

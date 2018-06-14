@@ -3,3 +3,5 @@ django_project/settings.pyc
 django_project/settings.py.orig
 .idea
 settings.py
+*.py[cod]
+*.pyc
