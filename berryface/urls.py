@@ -6,4 +6,5 @@ urlpatterns = [
     url(r'^view_json/', views.view_json, name="view_json"),
     url(r'^clear_db/', views.clear_db, name="clear_db"),
     url(r'^insert_sensor/', views.insert_sensor, name="insert_sensor"),
+    url(r'^get_json/', views.get_json, name="get_json"),
 ]

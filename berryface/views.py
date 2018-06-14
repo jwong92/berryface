@@ -23,3 +23,14 @@ def insert_sensor(request):
     json_obj = response.json()
     result = SensorType.objects.insert_sensor(json_obj)
     return HttpResponse(result)
+
+def get_json(request):
+    filter_date = str_to_datetime_default(request.GET.get('date'))
+    sensors_json = Sensor.objects.get_all_json(filter_date)
+    return HttpResponse(json.dumps(sensors_json), content_type='application/json')
+
+def str_to_datetime_default(query):
+    if not query:
+        return query
+    query = None
+    return query

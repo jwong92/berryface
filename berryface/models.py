@@ -42,10 +42,43 @@ class SensorType(models.Model):
     def __str__(self):
         return self.name
 
+    def get_json_entries(self, sensor):
+        types_json = []
+        types = self.measurements.all()
+        for item in types:
+            entries = []
+            entries_objects = Entry.objects.filter(sensor_type_id_id=sensor.id).filter(sensor_type_id_id = item.id)
+            for entry in entries_objects:
+                entries.append(entry.get_json())
+            types_json.append({"measure": item.measurement,
+                            "unit": item.unit,
+                            "entries": entries})
+        return types_json
+
+class SensorManager(models.Manager):
+    def get_all_json(self, filter_date):
+        sensors_all = self.all()
+
+        json_all = []
+        for item in sensors_all:
+            json_all.append(item.get_json_with_relations(filter_date))
+        return json_all
+
+
 class Sensor(models.Model):
+    objects = SensorManager()
     given_name = models.CharField(max_length=200)
     location = models.CharField(max_length=200)
     sensor_type_id = models.ForeignKey(SensorType, on_delete=models.CASCADE)
+
+    def get_json_with_relations(self, filter_date):
+        return {
+            "sensor_type_name": self.sensor_type_id.name,
+            "given_name": self.given_name,
+            "location": self.location,
+            "types": self.sensor_type_id.get_json_entries(self)
+        }
+
 
 class Entry(models.Model):
     given_name = models.CharField(max_length=200)
