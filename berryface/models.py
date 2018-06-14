@@ -43,7 +43,28 @@ class SensorType(models.Model):
     def __str__(self):
         return self.name
 
+    def get_json_entries(self, sensor):
+        types_json = []
+        types = self.measurements.all()
+        for item in types:
+            entries = []
+            entries_objects = Entry.objects.all().filter(measure_type_id_id=item.id).filter(sensor_type_id_id=sensor.sensor_type_id.id)
+            for entry in entries_objects:
+                entries.append(entry.get_json())
+            types_json.append({"measure": item.measurement,
+                            "unit": item.unit,
+                            "entries": entries})
+        return types_json
+
 class SensorManager(models.Manager):
+    def get_all_json(self, filter_date):
+        sensors_all = self.all()
+
+        json_all = []
+        for item in sensors_all:
+            json_all.append(item.get_json_with_relations(filter_date))
+        return json_all
+
     def add_sensor(self, sensors):
         # CHECK IF THE SENSOR EXISTS
         for sensor in sensors:
@@ -55,14 +76,21 @@ class SensorManager(models.Manager):
                 # IF THE SENSOR EXISTS
                 if sensor_id.exists():
                 # CREATE A NEW SENSOR
-                    s = sensor_id[0].sensor_set.create(given_name=sensor["given_name"], location=sensor["location"])        
+                    s = sensor_id[0].sensor_set.create(given_name=sensor["given_name"], location=sensor["location"])
 
 class Sensor(models.Model):
+    objects = SensorManager()
     given_name = models.CharField(max_length=200)
     location = models.CharField(max_length=200)
     sensor_type_id = models.ForeignKey(SensorType, on_delete=models.CASCADE)
 
-    objects = SensorManager()
+    def get_json_with_relations(self, filter_date):
+        return {
+            "sensor_type_name": self.sensor_type_id.name,
+            "given_name": self.given_name,
+            "location": self.location,
+            "types": self.sensor_type_id.get_json_entries(self)
+        }
 
     def __str__(self):
         return self.given_name
@@ -91,7 +119,11 @@ class Entry(models.Model):
 
     objects = EntryManager()
 
+    def get_json(self):
+        return {
+            'created_at': self.date.strftime("%Y-%m-%d_%H:%M:%S"),
+            'value': self.value
+        }
+
     def __str__(self):
         return str(self.value)
-
-
