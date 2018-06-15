@@ -121,7 +121,7 @@ class Entry(models.Model):
 
     def get_json(self):
         return {
-            'created_at': self.date.strftime("%Y-%m-%d_%H:%M:%S"),
+            'created_at': self.date.strftime("%m/%d %H:%M"),
             'value': self.value
         }
 
