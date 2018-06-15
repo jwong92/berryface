@@ -5,3 +5,4 @@ django_project/settings.py.orig
 settings.py
 *.py[cod]
 *.pyc
+__pycache__/*.pyc
