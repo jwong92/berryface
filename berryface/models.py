@@ -48,7 +48,7 @@ class SensorType(models.Model):
         types = self.measurements.all()
         for item in types:
             entries = []
-            entries_objects = Entry.objects.all().filter(measure_type_id_id=item.id).filter(sensor_type_id_id=sensor.sensor_type_id.id)
+            entries_objects = Entry.objects.all().filter(measure_type_id_id=item.id)
             for entry in entries_objects:
                 entries.append(entry.get_json())
             types_json.append({"measure": item.measurement,
@@ -99,22 +99,22 @@ class EntryManager(models.Manager):
     def add_entry(self, sensors):
         for sensor in sensors:
             # DETERMINE THE SENSOR_TYPE_ID AND MEASURE_TYPE_ID
-            sensor_type = SensorType.objects.filter(name=sensor["sensor_type_name"])
+            sensor_id = Sensor.objects.filter(given_name=sensor["given_name"])
             for types in sensor['types']:
                 measure_type = MeasureType.objects.filter(measurement=types["measure"])
-                if sensor_type.exists() and measure_type.exists():
+                if sensor_id.exists() and measure_type.exists():
                     # FOR EACH ENTRY, ADD THE VALUE
                     for entry in types['entries']:
                         obj, e = Entry.objects.get_or_create(date=datetime.strptime(entry['created_at'],"%Y-%m-%d_%H:%M:%S"), defaults={
                             'value': entry['value'],
-                            'sensor_type_id': sensor_type[0],
+                            'sensor_id': sensor_id[0],
                             'measure_type_id': measure_type[0]
                         },)
 
 class Entry(models.Model):
     value = models.FloatField()
     date = models.DateTimeField()
-    sensor_type_id = models.ForeignKey(SensorType, on_delete=models.CASCADE)
+    sensor_id = models.ForeignKey(Sensor, on_delete=models.CASCADE)
     measure_type_id = models.ForeignKey(MeasureType, on_delete=models.CASCADE)
 
     objects = EntryManager()
