@@ -10,4 +10,7 @@ urlpatterns = [
     url(r'^insert_types/', views.insert_types, name="insert_types"),
     url(r'^add_sensor/', views.add_sensor, name="add_sensor"),
     url(r'^add_entry/', views.add_entry, name="add_entry"),
+    url(r'^add_roles/', views.add_roles, name="add_roles"),
+    url(r'^add_user/', views.add_user, name="add_user"),
+    url(r'^view_token/', views.view_token, name="view_token"),
 ]
