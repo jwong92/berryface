@@ -1,0 +1,12 @@
+{
+    "roles": [
+        {
+            "role": "USR",
+            "description": "User has access to temperatures"
+        },
+        {
+            "role": "ADM",
+            "description": "Admin had access to everything"
+        }
+    ]
+}

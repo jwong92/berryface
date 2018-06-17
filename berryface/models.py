@@ -1,5 +1,7 @@
-from django.db import models
 from datetime import datetime
+import hashlib
+import uuid
+from django.db import models
 
 # Create your models here.
 class MeasureType(models.Model):
@@ -127,3 +129,68 @@ class Entry(models.Model):
 
     def __str__(self):
         return str(self.value)
+
+class RoleManager(models.Manager):
+    def add_role(self, roles):
+        for r in roles["roles"]:
+            # CHECK IF THE ROLE EXISTS
+            role_exists = self.filter(role=r["role"])
+            # IF NOT, ADD THE ROLE
+            if not role_exists:
+                self.create(role=r["role"], description=r["description"])
+
+class Role(models.Model):
+    role = models.CharField(max_length=100)
+    description = models.CharField(max_length=300)
+
+    objects = RoleManager()
+
+    def __str__(self):
+        return self.role
+
+class UserManager(models.Manager):
+    def hash_password(self, password):
+        hash_obj = hashlib.md5()
+        pass_encoded = password.encode('utf-8')
+        hash_obj.update(pass_encoded)
+        hashed_password = hash_obj.hexdigest()
+
+        return hashed_password
+
+    def insert_user(self, user):
+        # CHECK IF THE USER EXISTS
+        for u in user["user"]:
+            user_exists = self.filter(username=u["username"])
+            if not user_exists:
+                # HASH THE PASSWORD
+                hashed_pass = User.objects.hash_password(u["password"])
+                # GET INSTANCE OF THE ROLE
+                role_id = Role.objects.filter(pk=u["role_id"])
+                # CREATE THE UNIQUE TOKEN
+                unique_token = uuid.uuid1()
+                # CREATE A NEW USER
+                u = self.create(username=u["username"], password=hashed_pass, token=unique_token, role_id=role_id[0])
+
+    def get_token(self, user):
+        # CHECK THE LOGIN CREDENTIALS
+        for user in user["user"]:
+            user_exists = self.filter(username=user["username"])
+            if user_exists:
+                # COMPARE THE THE PASSWORDS
+                hashed_password_db = user_exists.values("password")[0]["password"]
+                hashed_password = User.objects.hash_password(user["password"])
+                if hashed_password_db == hashed_password:
+                    # RETURN THE TOKEN
+                    return user_exists.values("token")[0]["token"]
+        
+
+class User(models.Model):
+    username = models.CharField(max_length=250)
+    password = models.CharField(max_length=400)
+    token = models.CharField(max_length=100)
+    role_id = models.ForeignKey(Role, on_delete=models.CASCADE)
+
+    objects = UserManager()
+
+    def __str__(self):
+        return self.username

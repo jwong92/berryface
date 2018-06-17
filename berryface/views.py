@@ -4,7 +4,7 @@ from django.shortcuts import render
 import requests
 import json
 from django.http import HttpResponse
-from .models import SensorType, Sensor, MeasureType, Entry
+from .models import SensorType, Sensor, MeasureType, Entry, Role, User
 
 def index(request):
     return HttpResponse("Berry Face Index Page")
@@ -50,3 +50,16 @@ def add_entry(request):
     Entry.objects.add_entry(json_obj)
     return HttpResponse("Entries Added")
 
+def add_roles(request):
+    data = json.loads(open("berryface/roles.json").read())
+    Role.objects.add_role(data)
+    return HttpResponse("Added Roles")
+
+def add_user(request):
+    data = json.loads(open("berryface/user.json").read())
+    User.objects.insert_user(data)
+    return HttpResponse("User Added")
+
+def view_token(request):
+    token = User.objects.get_token(json.loads(open("berryface/user.json").read()))
+    return HttpResponse(token)
