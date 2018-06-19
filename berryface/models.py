@@ -50,7 +50,8 @@ class SensorType(models.Model):
         types = self.measurements.all()
         for item in types:
             entries = []
-            entries_objects = Entry.objects.all().filter(measure_type_id_id=item.id)
+            # entries_objects = Entry.objects.all().filter(measure_type_id_id=item.id)
+            entries_objects = Entry.objects.all().filter(measure_type_id_id=7).order_by('date')
             for entry in entries_objects:
                 entries.append(entry.get_json())
             types_json.append({"measure": item.measurement,
@@ -182,7 +183,6 @@ class UserManager(models.Manager):
                 if hashed_password_db == hashed_password:
                     # RETURN THE TOKEN
                     return user_exists.values("token")[0]["token"]
-        
 
 class User(models.Model):
     username = models.CharField(max_length=250)
