@@ -119,7 +119,6 @@ class Entry(models.Model):
     date = models.DateTimeField()
     sensor_id = models.ForeignKey(Sensor, on_delete=models.CASCADE)
     measure_type_id = models.ForeignKey(MeasureType, on_delete=models.CASCADE)
-
     objects = EntryManager()
 
     def get_json(self):
