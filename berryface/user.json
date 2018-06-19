@@ -1,7 +1,9 @@
 {
     "user": [
         {
-            "username": "user",
+            "fname": "Jessica",
+            "lname": "Wong",
+            "email": "user@gmail.com",
             "password": "user",
             "role_id": 1
         }

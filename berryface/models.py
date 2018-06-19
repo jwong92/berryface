@@ -160,7 +160,7 @@ class UserManager(models.Manager):
     def insert_user(self, user):
         # CHECK IF THE USER EXISTS
         for u in user["user"]:
-            user_exists = self.filter(username=u["username"])
+            user_exists = self.filter(username=u["email"])
             if not user_exists:
                 # HASH THE PASSWORD
                 hashed_pass = User.objects.hash_password(u["password"])
@@ -169,12 +169,12 @@ class UserManager(models.Manager):
                 # CREATE THE UNIQUE TOKEN
                 unique_token = uuid.uuid1()
                 # CREATE A NEW USER
-                u = self.create(username=u["username"], password=hashed_pass, token=unique_token, role_id=role_id[0])
+                u = self.create(fname=u["fname"], lname=u["lname"], email=u["email"], password=hashed_pass, token=unique_token, role_id=role_id[0])
 
     def get_token(self, user):
         # CHECK THE LOGIN CREDENTIALS
         for user in user["user"]:
-            user_exists = self.filter(username=user["username"])
+            user_exists = self.filter(email=user["email"])
             if user_exists:
                 # COMPARE THE THE PASSWORDS
                 hashed_password_db = user_exists.values("password")[0]["password"]
@@ -184,7 +184,9 @@ class UserManager(models.Manager):
                     return user_exists.values("token")[0]["token"]
 
 class User(models.Model):
-    username = models.CharField(max_length=250)
+    fname = models.CharField(max_length=250)
+    lname = models.CharField(max_length=250)
+    email = models.CharField(max_length=250)
     password = models.CharField(max_length=400)
     token = models.CharField(max_length=100)
     role_id = models.ForeignKey(Role, on_delete=models.CASCADE)
@@ -192,4 +194,4 @@ class User(models.Model):
     objects = UserManager()
 
     def __str__(self):
-        return self.username
+        return self.email
