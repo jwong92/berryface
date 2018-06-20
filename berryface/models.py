@@ -171,17 +171,34 @@ class UserManager(models.Manager):
                 # CREATE A NEW USER
                 u = self.create(fname=u["fname"], lname=u["lname"], email=u["email"], password=hashed_pass, token=unique_token, role_id=role_id[0])
 
-    def get_token(self, user):
-        # CHECK THE LOGIN CREDENTIALS
-        for user in user["user"]:
-            user_exists = self.filter(email=user["email"])
-            if user_exists:
-                # COMPARE THE THE PASSWORDS
-                hashed_password_db = user_exists.values("password")[0]["password"]
-                hashed_password = User.objects.hash_password(user["password"])
-                if hashed_password_db == hashed_password:
-                    # RETURN THE TOKEN
-                    return user_exists.values("token")[0]["token"]
+# GET TOKEN WITH A USER AND PASS PROVIDED AS A STRING
+    def check_cred_get_token(self, in_email, in_password):
+        # LOOK FOR THEIR EMAIL
+        credentials = []
+        email = self.filter(email=in_email)
+        if email.exists():
+        # COMPARE THE PASSWORDS
+            hashed_password_db = email.values("password")[0]['password']
+            hashed_password = self.hash_password(in_password)
+            if hashed_password_db == hashed_password:
+                # RETURN THE TOKEN IF PASSWORD AND EMAIL MATCH (RETURNS IN JSON)
+                credentials.append({
+                    "token" : email.values("token")[0]["token"],
+                    "role_id" : email.values("role_id")[0]['role_id']
+                })
+                return credentials
+            else:
+                credentials.append({
+                    "token" : False,
+                    "role_id" : False
+                })
+                return credentials
+        else:
+            credentials.append({
+                "token" : False,
+                "role_id" : False
+                })
+            return credentials
 
 class User(models.Model):
     fname = models.CharField(max_length=250)

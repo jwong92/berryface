@@ -3,6 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 import requests
 import json
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from .models import SensorType, Sensor, MeasureType, Entry, Role, User
 
@@ -25,7 +26,6 @@ def insert_types(request):
     json_obj = response.json()
     result = SensorType.objects.insert_sensor(json_obj)
     return HttpResponse(result, content_type="application/json")
-
 
 def get_json(request):
     filter_date = str_to_datetime_default(request.GET.get('date'))
@@ -60,6 +60,24 @@ def add_user(request):
     User.objects.insert_user(data)
     return HttpResponse("User Added")
 
+@csrf_exempt
 def view_token(request):
-    token = User.objects.get_token(json.loads(open("berryface/user.json").read()))
-    return HttpResponse(token)
+    if request.method == "POST":
+        # BECUASE I AM PASSING A JSON STRING, I WILL RENDER THE BODY, THEN SERIALIZE THE JSON TO A DICT
+        json_str = request.body
+        json_dict = json.loads(json_str)
+        email = json_dict['user'][0]['email']
+        password = json_dict['user'][0]['password']
+
+        # CHECK THE CREDENTIALS
+        credentials = User.objects.check_cred_get_token(email, password)
+        print credentials
+        return HttpResponse(json.dumps(credentials))
+        
+        # IF USING FORM ENCODED DATA, USE REQUEST.POST AND MAKE SURE THAT THE ENCTYPE IS FORM!
+        # json_obj = json.dumps(request.POST)
+
+
+# Posting JSON in Python without Requests Library
+
+# https://gist.github.com/kennethreitz/1294570
