@@ -50,8 +50,7 @@ class SensorType(models.Model):
         types = self.measurements.all()
         for item in types:
             entries = []
-            # entries_objects = Entry.objects.all().filter(measure_type_id_id=item.id)
-            entries_objects = Entry.objects.all().filter(measure_type_id_id=7).order_by('date')
+            entries_objects = Entry.objects.all().filter(measure_type_id_id=item.id).filter(sensor_id_id=sensor.id).order_by('date')
             for entry in entries_objects:
                 entries.append(entry.get_json())
             types_json.append({"measure": item.measurement,
