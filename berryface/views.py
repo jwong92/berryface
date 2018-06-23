@@ -32,6 +32,10 @@ def get_json(request):
     sensors_json = Sensor.objects.get_all_json(filter_date)
     return HttpResponse(json.dumps(sensors_json), content_type='application/json')
 
+def json_live(request):
+    response = requests.get('http://99.225.25.240:8000/webapp/live_read/')
+    return HttpResponse(response, content_type="application/json")
+
 def str_to_datetime_default(query):
     if not query:
         return query
