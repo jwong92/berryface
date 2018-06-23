@@ -174,13 +174,14 @@ class UserManager(models.Manager):
     def check_cred_get_token(self, in_email, in_password):
         # LOOK FOR THEIR EMAIL
         credentials = []
-        email = self.filter(email=in_email)
+        email = self.filter(email=in_email).all()
         if email.exists():
         # COMPARE THE PASSWORDS
-            hashed_password_db = email.values("password")[0]['password']
+            hashed_password_db = email.values("password")#[0]['password']
             hashed_password = self.hash_password(in_password)
             if hashed_password_db == hashed_password:
                 # RETURN THE TOKEN IF PASSWORD AND EMAIL MATCH (RETURNS IN JSON)
+                # email = email.refresh_token()
                 credentials.append({
                     "token" : email.values("token")[0]["token"],
                     "role_id" : email.values("role_id")[0]['role_id']
@@ -206,8 +207,15 @@ class User(models.Model):
     password = models.CharField(max_length=400)
     token = models.CharField(max_length=100)
     role_id = models.ForeignKey(Role, on_delete=models.CASCADE)
+    token_date = models.DateTimeField()
 
     objects = UserManager()
+
+    def refresh_token(self):
+        self.token = uuid.uuid1()
+        self.token_date = datetime.now()
+        self.save
+        return self
 
     def __str__(self):
         return self.email
