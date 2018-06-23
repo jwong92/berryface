@@ -4,6 +4,7 @@ from django.shortcuts import render
 import requests
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import HttpResponse
 from .models import SensorType, Sensor, MeasureType, Entry, Role, User
 
@@ -60,7 +61,8 @@ def add_user(request):
     User.objects.insert_user(data)
     return HttpResponse("User Added")
 
-@csrf_exempt
+# @csrf_exempt
+@ensure_csrf_cookie
 def view_token(request):
     if request.method == "POST":
         # BECUASE I AM PASSING A JSON STRING, I WILL RENDER THE BODY, THEN SERIALIZE THE JSON TO A DICT
@@ -73,7 +75,7 @@ def view_token(request):
         credentials = User.objects.check_cred_get_token(email, password)
         print credentials
         return HttpResponse(json.dumps(credentials))
-        
+
         # IF USING FORM ENCODED DATA, USE REQUEST.POST AND MAKE SURE THAT THE ENCTYPE IS FORM!
         # json_obj = json.dumps(request.POST)
 
