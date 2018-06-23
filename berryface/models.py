@@ -177,7 +177,7 @@ class UserManager(models.Manager):
         email = self.filter(email=in_email).all()
         if email.exists():
         # COMPARE THE PASSWORDS
-            hashed_password_db = email.values("password")#[0]['password']
+            hashed_password_db = email.values("password")[0]['password']
             hashed_password = self.hash_password(in_password)
             if hashed_password_db == hashed_password:
                 # RETURN THE TOKEN IF PASSWORD AND EMAIL MATCH (RETURNS IN JSON)
