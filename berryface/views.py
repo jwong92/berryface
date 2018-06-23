@@ -4,6 +4,7 @@ from django.shortcuts import render
 import requests
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import HttpResponse
 from .models import SensorType, Sensor, MeasureType, Entry, Role, User
 
@@ -11,7 +12,7 @@ def index(request):
     return HttpResponse("Berry Face Index Page")
 
 def view_json(request):
-    response = requests.get('http://99.225.25.240:8000/webapp/')
+    response = requests.get('http://berryface.pagekite.me/webapp/')
     return HttpResponse(response, content_type="application/json")
 
 def clear_db(request):
@@ -22,7 +23,7 @@ def clear_db(request):
     return HttpResponse("Cleared")
 
 def insert_types(request):
-    response = requests.get('http://99.225.25.240:8000/webapp/')
+    response = requests.get('http://berryface.pagekite.me/webapp/')
     json_obj = response.json()
     result = SensorType.objects.insert_sensor(json_obj)
     return HttpResponse(result, content_type="application/json")
@@ -33,7 +34,7 @@ def get_json(request):
     return HttpResponse(json.dumps(sensors_json), content_type='application/json')
 
 def json_live(request):
-    response = requests.get('http://99.225.25.240:8000/webapp/live_read/')
+    response = requests.get('http://berryface.pagekite.me/webapp/live_read/')
     return HttpResponse(response, content_type="application/json")
 
 def str_to_datetime_default(query):
@@ -43,13 +44,13 @@ def str_to_datetime_default(query):
     return query
 
 def add_sensor(request):
-    response = requests.get('http://99.225.25.240:8000/webapp/')
+    response = requests.get('http://berryface.pagekite.me/webapp/')
     json_obj = response.json()
     Sensor.objects.add_sensor(json_obj)
     return HttpResponse("All inserted")
 
 def add_entry(request):
-    response = requests.get('http://99.225.25.240:8000/webapp/')
+    response = requests.get('http://berryface.pagekite.me/webapp/')
     json_obj = response.json()
     Entry.objects.add_entry(json_obj)
     return HttpResponse("Entries Added")
@@ -65,6 +66,7 @@ def add_user(request):
     return HttpResponse("User Added")
 
 @csrf_exempt
+# @ensure_csrf_cookie
 def view_token(request):
     if request.method == "POST":
         # BECUASE I AM PASSING A JSON STRING, I WILL RENDER THE BODY, THEN SERIALIZE THE JSON TO A DICT
@@ -77,7 +79,7 @@ def view_token(request):
         credentials = User.objects.check_cred_get_token(email, password)
         print credentials
         return HttpResponse(json.dumps(credentials))
-        
+
         # IF USING FORM ENCODED DATA, USE REQUEST.POST AND MAKE SURE THAT THE ENCTYPE IS FORM!
         # json_obj = json.dumps(request.POST)
 
