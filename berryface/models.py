@@ -1,4 +1,5 @@
 from datetime import datetime
+from pprint import pprint
 import hashlib
 import uuid
 from django.db import models
@@ -181,7 +182,9 @@ class UserManager(models.Manager):
             hashed_password = self.hash_password(in_password)
             if hashed_password_db == hashed_password:
                 # RETURN THE TOKEN IF PASSWORD AND EMAIL MATCH (RETURNS IN JSON)
-                # email = email.refresh_token()
+                for e in email:
+                    e.refresh_token()
+
                 credentials.append({
                     "token" : email.values("token")[0]["token"],
                     "role_id" : email.values("role_id")[0]['role_id']
@@ -209,13 +212,13 @@ class User(models.Model):
     role_id = models.ForeignKey(Role, on_delete=models.CASCADE)
     token_date = models.DateTimeField()
 
-    objects = UserManager()
-
     def refresh_token(self):
         self.token = uuid.uuid1()
         self.token_date = datetime.now()
-        self.save
+        self.save()
         return self
+
+    objects = UserManager()
 
     def __str__(self):
         return self.email
