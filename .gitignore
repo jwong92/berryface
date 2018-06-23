@@ -6,3 +6,4 @@ settings.py
 *.py[cod]
 *.pyc
 __pycache__/*.pyc
+*.py.swp
