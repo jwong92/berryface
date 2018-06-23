@@ -13,4 +13,5 @@ urlpatterns = [
     url(r'^add_roles/', views.add_roles, name="add_roles"),
     url(r'^add_user/', views.add_user, name="add_user"),
     url(r'^view_token/', views.view_token, name="view_token"),
+    url(r'^json_live/', views.json_live, name="json_live"),
 ]
