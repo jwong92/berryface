@@ -3,6 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 import requests
 import json
+from pprint import pprint
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import HttpResponse
@@ -12,8 +13,16 @@ def index(request):
     return HttpResponse("Berry Face Index Page")
 
 def view_json(request):
-    response = requests.get('http://berryface.pagekite.me/webapp/')
-    return HttpResponse(response, content_type="application/json")
+    if request.method == "GET":
+    # GET THE TOKEN
+        get_req = request.GET
+        token = get_req['key']
+        # CHECK THAT THE TOKEN EXISTS, AND RETURN THE JSON
+        if User.objects.vaidate_token(token) == True:
+            response = requests.get('http://berryface.pagekite.me/webapp/')
+            return HttpResponse(response, content_type="application/json")
+        else:
+            return HttpResponse('Unauthorized', status=401)
 
 def clear_db(request):
     SensorType.objects.all().delete()
@@ -29,13 +38,31 @@ def insert_types(request):
     return HttpResponse(result, content_type="application/json")
 
 def get_json(request):
-    filter_date = str_to_datetime_default(request.GET.get('date'))
-    sensors_json = Sensor.objects.get_all_json(filter_date)
-    return HttpResponse(json.dumps(sensors_json), content_type='application/json')
+    if request.method == "GET":
+        # GET THE TOKEN
+        get_req = request.GET
+        token = get_req['key']
+
+        # CHECK THAT THE TOKEN EXISTS, AND RETURN THE JSON
+        if User.objects.vaidate_token(token) == True:
+            filter_date = str_to_datetime_default(request.GET.get('date'))
+            sensors_json = Sensor.objects.get_all_json(filter_date)
+            return HttpResponse(json.dumps(sensors_json), content_type='application/json')
+        else:
+            return HttpResponse('Unauthorized', status=401)
 
 def json_live(request):
-    response = requests.get('http://berryface.pagekite.me/webapp/live_read/')
-    return HttpResponse(response, content_type="application/json")
+    if request.method == "GET":
+        # GET THE TOKEN
+        get_req = request.GET
+        token = get_req['key']
+        
+        # CHECK THAT THE TOKEN EXISTS, AND RETURN THE JSON
+        if User.objects.vaidate_token(token) == True:
+            response = requests.get('http://berryface.pagekite.me/webapp/live_read/')
+            return HttpResponse(response, content_type="application/json")
+        else:
+            return HttpResponse('Unauthorized', status=401)
 
 def str_to_datetime_default(query):
     if not query:

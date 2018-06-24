@@ -202,6 +202,14 @@ class UserManager(models.Manager):
                 "role_id" : False
                 })
             return credentials
+    
+    def vaidate_token(self, in_token):
+        token_exists = self.filter(token=in_token).exists()
+        if token_exists:
+            return True
+        else:
+            return False
+
 
 class User(models.Model):
     fname = models.CharField(max_length=250)
