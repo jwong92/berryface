@@ -182,8 +182,10 @@ class UserManager(models.Manager):
             hashed_password = self.hash_password(in_password)
             if hashed_password_db == hashed_password:
                 # RETURN THE TOKEN IF PASSWORD AND EMAIL MATCH (RETURNS IN JSON)
-                for e in email:
-                    e.refresh_token()
+
+                # FOR FUTURE, UNCOMMENT TO CHANGE TOKEN EACH TIME USER LOGS IN
+                # for e in email:
+                #     e.refresh_token()
 
                 credentials.append({
                     "token" : email.values("token")[0]["token"],
