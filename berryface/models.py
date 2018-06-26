@@ -113,6 +113,7 @@ class EntryManager(models.Manager):
                             'sensor_id': sensor_id[0],
                             'measure_type_id': measure_type[0]
                         },)
+                        
 
 class Entry(models.Model):
     value = models.FloatField()

@@ -92,8 +92,8 @@ def add_user(request):
     User.objects.insert_user(data)
     return HttpResponse("User Added")
 
-@csrf_exempt
 # @ensure_csrf_cookie
+@csrf_exempt
 def view_token(request):
     if request.method == "POST":
         # BECUASE I AM PASSING A JSON STRING, I WILL RENDER THE BODY, THEN SERIALIZE THE JSON TO A DICT
